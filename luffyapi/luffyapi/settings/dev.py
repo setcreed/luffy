@@ -17,9 +17,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # 环境变量配置管理
 import sys
+
 sys.path.append(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, 'apps'))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -31,7 +31,6 @@ SECRET_KEY = 'kg0e(9mv*=)eeg9_ymjlqo0^)buhsxo#567z&m*&ff_c)^1ut&'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -45,6 +44,16 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'user',
+    'home',
+
+    'corsheaders',
+
+    # xamin主体模块
+    'xadmin',
+    # 渲染表格模块
+    'crispy_forms',
+    # 为模型通过版本控制，可以回滚数据
+    'reversion',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +64,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+# 允许跨域源
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'luffyapi.urls'
 
@@ -78,7 +92,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'luffyapi.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
@@ -94,11 +107,14 @@ DATABASES = {
 }
 
 import pymysql
+
 pymysql.install_as_MySQLdb()
 
 # 自定义user表
 AUTH_USER_MODEL = 'user.User'
 
+# 加载自定义常量配置文件名称空间
+from .const import *
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -118,7 +134,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
@@ -131,7 +146,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = False
-
 
 BASE_URL = 'http://127.0.0.1:8000'
 
@@ -188,11 +202,10 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console', 'file'],
-            'propagate': True, # 是否让日志信息继续冒泡给其他的日志处理系统
+            'propagate': True,  # 是否让日志信息继续冒泡给其他的日志处理系统
         },
     }
 }
-
 
 # drf框架配置
 REST_FRAMEWORK = {

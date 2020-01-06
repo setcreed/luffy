@@ -1,23 +1,29 @@
 <template>
     <div class="banner">
         <el-carousel height="400px">
-            <el-carousel-item>
-                <router-link to="/">
-                    <img src="../assets/img/banner1.png" alt="">
-                </router-link>
-            </el-carousel-item>
-            <el-carousel-item>
-                <router-link to="/">
-                    <img src="../assets/img/banner4.png" alt="">
+<!--            <el-carousel-item>-->
+<!--                <router-link to="/">-->
+<!--                    <img src="../assets/img/banner1.png" alt="">-->
+<!--                </router-link>-->
+<!--            </el-carousel-item>-->
+            <!--            <el-carousel-item>-->
+            <!--                <router-link to="/">-->
+            <!--                    <img src="../assets/img/banner2.png" alt="">-->
+            <!--                </router-link>-->
+            <!--            </el-carousel-item>-->
+            <!--            <el-carousel-item>-->
+            <!--                <router-link to="/">-->
+            <!--                    <img src="../assets/img/banner3.png" alt="">-->
+            <!--                </router-link>-->
+            <!--            </el-carousel-item>-->
+
+
+            <el-carousel-item v-for="banner in banner_list" :key="banner.title">
+                <router-link :to="banner.link">
+                    <img :src="banner.image" alt="" :title="banner.title">
                 </router-link>
             </el-carousel-item>
 
-            <!--<el-carousel-item v-for="banner in banner_list" :key="banner.title">-->
-                <!--<router-link :to="banner.link">-->
-                    <!--<img :src="banner.image" alt="" :title="banner.title">-->
-                    <!--&lt;!&ndash;<div class="img"></div>&ndash;&gt;-->
-                <!--</router-link>-->
-            <!--</el-carousel-item>-->
         </el-carousel>
     </div>
 </template>
@@ -40,6 +46,15 @@
             //     // console.log(response)
             //     this.banner_list = response.data
             // })
+
+            this.$axios({
+                url: this.$settings.base_url + '/home/banners/',
+                method: 'get',
+            }).then(response => {
+                this.banner_list = response.data
+            }).catch(error => {
+                console.log(error.response.data)
+            })
         }
     }
 </script>
@@ -61,7 +76,6 @@
     .el-carousel__item {
         min-width: 1200px;
     }
-
 
 
 </style>
