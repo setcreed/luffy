@@ -133,6 +133,7 @@ USE_L10N = True
 USE_TZ = False
 
 
+BASE_URL = 'http://127.0.0.1:8000'
 
 # 静态文件配置
 STATIC_URL = '/static/'
