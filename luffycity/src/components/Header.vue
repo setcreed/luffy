@@ -26,12 +26,13 @@
             <div class="right-part">
                 <span @click="pull_login">登录</span>
                 <span class="line">|</span>
-                <span>注册</span>
+                <span @click="pull_register">注册</span>
             </div>
 
         </div>
 
-        <login v-if="is_login" />
+        <login v-if="is_login" @close="close_login" @go="pull_register"/>
+        <register v-if="is_register" @close="close_register" @go="pull_login"/>
 
     </div>
 
@@ -39,16 +40,19 @@
 
 <script>
     import Login from './Login'
+    import Register from './Register'
     export default {
         name: "Header",
-        components: {Login},
+        components: {Register, Login},
         comments: {
-            Login
+            Login,
+            Register
         },
         data() {
             return {
                 url_path: sessionStorage.url_path || '/',
-                i_login: false
+                is_login: false,
+                is_register: false
             }
         },
         methods: {
@@ -59,6 +63,23 @@
                 }
                 sessionStorage.url_path = url_path;
             },
+            //显示登录模态框
+            pull_login() {
+                this.is_login = true;
+                this.close_register()
+            },
+            close_login() {
+                this.is_login = false
+            },
+
+            //显示注册模态框
+            pull_register() {
+                this.is_register = true;
+                this.close_login()
+            },
+            close_register() {
+                this.is_register = false;
+            }
         },
         created() {
             sessionStorage.url_path = this.$route.path;

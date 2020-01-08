@@ -1,13 +1,19 @@
-from rest_framework.views import APIView
-from . import serializers, models
-from utils.response import APIResponse
-
 import re
+
+from rest_framework.views import APIView
+from django.core.cache import cache
+from django.conf import settings
+
+from . import serializers, models, throttles
+from utils.response import APIResponse
+from libs import tx_sms
+
 
 # 多方式登录
 class LoginAPIView(APIView):
     authentication_classes = []
     permission_classes = []
+
     def post(self, request, *args, **kwargs):
         serializer = serializers.LoginModelSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)  # 内部在全局钩子中完成token的签发
@@ -34,12 +40,10 @@ class LoginMobileAPIView(APIView):
 
 
 # 发送验证码
-from libs import tx_sms
-from django.core.cache import cache
-from django.conf import settings
 class SMSAPIView(APIView):
     authentication_classes = []
     permission_classes = []
+    throttle_classes = [throttles.SMSRateThrottle]
 
     def post(self, request, *args, **kwargs):
         # 1、处理手机号
@@ -47,7 +51,7 @@ class SMSAPIView(APIView):
         if not mobile:
             return APIResponse(1, msg='mobile字段错误', http_status=400)
 
-        if not re.match(r'^1[1-9][0-9]{9}$', mobile):
+        if not re.match(r'^1[3-9][0-9]{9}$', mobile):
             return APIResponse(1, msg='mobile格式错误', http_status=400)
 
         # 2、生成验证码
@@ -72,7 +76,7 @@ class MobileCheckAPIView(APIView):
         if not mobile:
             return APIResponse(1, msg='mobile必须提供', http_status=400)
 
-        if not re.match(r'^1[1-9][0-9]{9}$', mobile):
+        if not re.match(r'^1[3-9][0-9]{9}$', mobile):
             return APIResponse(1, msg='mobile格式有误', http_status=400)
 
         try:
@@ -91,4 +95,3 @@ class RegisterMobileAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         user_obj = serializer.save()
         return APIResponse(results=serializers.RegisterMobileModelSerializer(user_obj).data)
-

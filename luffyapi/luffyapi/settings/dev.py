@@ -211,4 +211,29 @@ LOGGING = {
 REST_FRAMEWORK = {
     # 异常模块
     'EXCEPTION_HANDLER': 'utils.exception.exception_handler',
+
+    # 三大认证模块
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    ],
+    # 拥有具体权限限制的视图类局部配置权限
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    # 拥有具体频率限制的视图类局部配置频率
+    'DEFAULT_THROTTLE_CLASSES': [],
+    # 频率限制scope的规则
+    'DEFAULT_THROTTLE_RATES': {
+        'sms': '1/min'
+    },
+
+}
+
+# drf-jwt配置
+import datetime
+
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+    'JWT_ALLOW_REFRESH': False,
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 }

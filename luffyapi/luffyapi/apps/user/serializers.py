@@ -41,7 +41,7 @@ class LoginModelSerializer(serializers.ModelSerializer):
 
         if re.match(r'.*@.*', username):  # 邮箱
             user = models.User.objects.filter(email=username).first()
-        elif re.match(r'^1[1-9][0-9]{9}$', username):  # 电话
+        elif re.match(r'^1[3-9][0-9]{9}$', username):  # 电话
             user = models.User.objects.filter(mobile=username).first()
         else:  # 用户名
             user = models.User.objects.filter(username=username).first()
@@ -107,7 +107,7 @@ class RegisterMobileModelSerializer(serializers.ModelSerializer):
 
     # 每一个反序列化字段都可以有一个局部钩子
     def validate_mobile(self, value):
-        if not re.match(r'^1[1-9][0-9]{9}$', value):
+        if not re.match(r'^1[3-9][0-9]{9}$', value):
             raise serializers.ValidationError('手机号格式错误')
         return value
 
