@@ -19,6 +19,11 @@ Vue.prototype.$axios = axios;
 // cookies
 import cookies from 'vue-cookies'
 Vue.prototype.$cookies = cookies;
+/*
+this.$cookies.set(key, value, exp)
+this.$cookies.get(key)
+this.$cookies.remove(key)
+*/
 
 // element-ui
 import ElementUI from 'element-ui';

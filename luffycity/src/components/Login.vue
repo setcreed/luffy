@@ -23,7 +23,7 @@
                             clearable
                             show-password>
                     </el-input>
-                    <el-button type="primary">登录</el-button>
+                    <el-button type="primary" @click="login">登录</el-button>
                 </el-form>
                 <el-form v-if="login_method === 'is_sms'">
                     <el-input
@@ -42,7 +42,7 @@
                             <span class="sms" @click="send_sms">{{ sms_interval }}</span>
                         </template>
                     </el-input>
-                    <el-button type="primary">登录</el-button>
+                    <el-button type="primary" @click="login_mobile">登录</el-button>
                 </el-form>
                 <div class="foot">
                     <span @click="go_register">立即注册</span>
@@ -76,7 +76,9 @@
             change_login_method(method) {
                 this.login_method = method;
             },
+            // 校验手机对应用户是否存在
             check_mobile() {
+                // 前台校验手机格式
                 if (!this.mobile) return;
                 if (!this.mobile.match(/^1[3-9][0-9]{9}$/)) {
                     this.$message({
@@ -89,14 +91,39 @@
                     });
                     return false;
                 }
-                this.is_send = true;
+                // 访问后台校验手机号对应用户是否存在
+                this.$axios({
+                    url: this.$settings.base_url + '/user/mobile/',
+                    method: 'get',
+                    params: {
+                        mobile: this.mobile
+                    }
+                }).then(response => {
+                    if (response.data.status === 0) {
+                        this.$message({
+                            message: response.data.msg,
+                            type: 'warning',
+                            duration: 1000,
+                        })
+                    } else {
+                        // 注册过的手机才允许发送验证码
+                        this.is_send = true;
+                    }
+                }).catch(error => {
+                    this.$message({
+                        message: error.response.data.msg,
+                        type: 'error'
+                    })
+                });
             },
+            // 发送验证码
             send_sms() {
-
                 if (!this.is_send) return;
                 this.is_send = false;
-                let sms_interval_time = 60;
                 this.sms_interval = "发送中...";
+
+                // 倒计时
+                let sms_interval_time = 60;
                 let timer = setInterval(() => {
                     if (sms_interval_time <= 1) {
                         clearInterval(timer);
@@ -107,7 +134,110 @@
                         this.sms_interval = `${sms_interval_time}秒后再发`;
                     }
                 }, 1000);
-            }
+
+                this.$axios({
+                    url: this.$settings.base_url + '/user/sms/',
+                    method: 'post',
+                    data: {
+                        mobile: this.mobile
+                    }
+                }).then(response => {
+                    if (response.data.status === 0) {
+                        // 成功
+                        this.$message({
+                            message: '验证码发送成功',
+                            type: 'success',
+                        })
+                    } else {
+                        // 失败
+                        this.$message({
+                            message: '验证码发送失败',
+                            type: 'error',
+                        })
+                    }
+                }).catch(() => {
+                    // 异常
+                    this.$message({
+                        message: '获取验证码异常',
+                        type: 'error',
+                    })
+                });
+            },
+            // 验证码登录
+            login_mobile() {
+                if (!this.mobile || !this.sms) return false;
+
+                this.$axios({
+                    url: this.$settings.base_url + '/user/login/mobile/',
+                    method: 'post',
+                    data: {
+                        mobile: this.mobile,
+                        code: this.sms,
+                    }
+                }).then(response => {
+                    // 要将响应的用户信息和token存储到cookies中
+                    this.$cookies.set('token', response.data.results.token, '1d');
+                    this.$cookies.set('username', response.data.results.username, '1d');
+
+                    // 弹出框提示后，关闭登录界面
+                    this.$message({
+                        message: '登录成功',
+                        type: 'success',
+                        duration: 1500,
+                        onClose: () => {
+                            this.$emit('success')
+                        }
+                    });
+                }).catch(() => {
+                    // 异常
+                    this.$message({
+                        message: '登录失败',
+                        type: 'error',
+                        duration: 1500,
+                        onClose: () => {
+                            this.mobile = '';
+                            this.sms = '';
+                        }
+                    })
+                });
+            },
+            // 密码登录
+            login() {
+                if (!this.username || !this.password) return false;
+                this.$axios({
+                    url: this.$settings.base_url + '/user/login/',
+                    method: 'post',
+                    data: {
+                        username: this.username,
+                        password: this.password,
+                    }
+                }).then(response => {
+                    // 要将响应的用户信息和token存储到cookies中
+                    this.$cookies.set('token', response.data.results.token, '1d');
+                    this.$cookies.set('username', response.data.results.username, '1d');
+
+                    // 弹出框提示后，关闭登录界面
+                    this.$message({
+                        message: '登录成功',
+                        type: 'success',
+                        duration: 1500,
+                        onClose: () => {
+                            this.$emit('success')
+                        }
+                    });
+                }).catch(() => {
+                    // 异常
+                    this.$message({
+                        message: '登录失败',
+                        type: 'error',
+                        duration: 1500,
+                        onClose: () => {
+                            this.username = '';
+                            this.password = '';
+                        }
+                    })
+                });
+            },
         }
     }
 </script>

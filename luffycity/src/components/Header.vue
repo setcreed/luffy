@@ -24,15 +24,23 @@
 
 
             <div class="right-part">
-                <span @click="pull_login">登录</span>
-                <span class="line">|</span>
-                <span @click="pull_register">注册</span>
+                <div v-if="!token">
+                    <span @click="pull_login">登录</span>
+                    <span class="line">|</span>
+                    <span @click="pull_register">注册</span>
+                </div>
+                <div v-else>
+                    <span>{{ username }}</span>
+                    <span class="line">|</span>
+                    <span @click="logout">注销</span>
+                </div>
             </div>
 
         </div>
 
-        <login v-if="is_login" @close="close_login" @go="pull_register"/>
-        <register v-if="is_register" @close="close_register" @go="pull_login"/>
+
+        <Login v-if="is_login" @close="close_login" @go="pull_register" @success="login_success"/>
+        <Register v-if="is_register" @close="close_register" @go="pull_login" @success="register_success"/>
 
     </div>
 
@@ -41,18 +49,20 @@
 <script>
     import Login from './Login'
     import Register from './Register'
+
     export default {
         name: "Header",
-        components: {Register, Login},
-        comments: {
+        components: {
             Login,
-            Register
+            Register,
         },
         data() {
             return {
                 url_path: sessionStorage.url_path || '/',
                 is_login: false,
-                is_register: false
+                is_register: false,
+                token: $cookies.get('token') || '',
+                username: $cookies.get('username') || '',
             }
         },
         methods: {
@@ -63,27 +73,42 @@
                 }
                 sessionStorage.url_path = url_path;
             },
-            //显示登录模态框
+            // 显示登录模态框
             pull_login() {
                 this.is_login = true;
-                this.close_register()
+                this.close_register();
             },
             close_login() {
-                this.is_login = false
+                this.is_login = false;
             },
-
-            //显示注册模态框
             pull_register() {
                 this.is_register = true;
-                this.close_login()
+                this.close_login();
             },
             close_register() {
                 this.is_register = false;
+            },
+            login_success() {
+                this.close_login();
+                this.token = this.$cookies.get('token') || '';
+                this.username = this.$cookies.get('username') || '';
+            },
+            register_success() {
+                this.pull_login();
+            },
+            logout() {
+                this.$cookies.remove('token');
+                this.$cookies.remove('username');
+                this.token = '';
+                this.username = '';
             }
         },
         created() {
             sessionStorage.url_path = this.$route.path;
             this.url_path = this.$route.path;
+            // 也可以在data中只做空声明，钩子中初始化
+            // this.token = this.$cookies.get('token') || '';
+            // this.username = this.$cookies.get('username') || '';
         }
     }
 </script>

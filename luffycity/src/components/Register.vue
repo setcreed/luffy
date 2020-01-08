@@ -30,7 +30,7 @@
                             <span class="sms" @click="send_sms">{{ sms_interval }}</span>
                         </template>
                     </el-input>
-                    <el-button type="primary">注册</el-button>
+                    <el-button type="primary" @click="register">注册</el-button>
                 </el-form>
                 <div class="foot">
                     <span @click="go_login">立即登录</span>
@@ -59,7 +59,9 @@
             go_login() {
                 this.$emit('go')
             },
+            // 校验手机对应用户是否注册
             check_mobile() {
+                // 前台校验手机格式
                 if (!this.mobile) return;
                 if (!this.mobile.match(/^1[3-9][0-9]{9}$/)) {
                     this.$message({
@@ -72,13 +74,39 @@
                     });
                     return false;
                 }
-                this.is_send = true;
+                // 访问后台校验手机号对应用户是否存在
+                this.$axios({
+                    url: this.$settings.base_url + '/user/mobile/',
+                    method: 'get',
+                    params: {
+                        mobile: this.mobile
+                    }
+                }).then(response => {
+                    if (response.data.status === 2) {
+                        this.$message({
+                            message: response.data.msg,
+                            type: 'warning',
+                            duration: 1000,
+                        })
+                    } else {
+                        // 未注册过的手机才允许发送验证码
+                        this.is_send = true;
+                    }
+                }).catch(error => {
+                    this.$message({
+                        message: error.response.data.msg,
+                        type: 'error'
+                    })
+                });
             },
+            // 发送验证码
             send_sms() {
                 if (!this.is_send) return;
                 this.is_send = false;
-                let sms_interval_time = 60;
                 this.sms_interval = "发送中...";
+
+                // 倒计时
+                let sms_interval_time = 60;
                 let timer = setInterval(() => {
                     if (sms_interval_time <= 1) {
                         clearInterval(timer);
@@ -89,6 +117,70 @@
                         this.sms_interval = `${sms_interval_time}秒后再发`;
                     }
                 }, 1000);
+
+                this.$axios({
+                    url: this.$settings.base_url + '/user/sms/',
+                    method: 'post',
+                    data: {
+                        mobile: this.mobile
+                    }
+                }).then(response => {
+                    if (response.data.status === 0) {
+                        // 成功
+                        this.$message({
+                            message: '验证码发送成功',
+                            type: 'success',
+                        })
+                    } else {
+                        // 失败
+                        this.$message({
+                            message: '验证码发送失败',
+                            type: 'error',
+                        })
+                    }
+                }).catch(() => {
+                    // 异常
+                    this.$message({
+                        message: '获取验证码异常',
+                        type: 'error',
+                    })
+                });
+            },
+            // 注册
+            register() {
+                if (!this.mobile || !this.password || !this.sms) return false;
+
+                this.$axios({
+                    url: this.$settings.base_url + '/user/register/mobile/',
+                    method: 'post',
+                    data: {
+                        mobile: this.mobile,
+                        code: this.sms,
+                        password: this.password,
+                    }
+                }).then(response => {
+                    // 弹出框提示后，关闭注册界面，前台登录页面
+                    this.$message({
+                        message: '注册成功',
+                        type: 'success',
+                        duration: 1500,
+                        onClose: () => {
+                            this.$emit('success')
+                        }
+                    });
+                }).catch(() => {
+                    // 异常
+                    this.$message({
+                        message: '注册失败',
+                        type: 'error',
+                        duration: 1500,
+                        onClose: () => {
+                            this.mobile = '';
+                            this.password = '';
+                            this.sms = '';
+                        }
+                    })
+                });
             }
         }
     }
