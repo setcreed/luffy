@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from . import serializer
+from . import serializers, models
 from utils.response import APIResponse
 
 import re
@@ -9,12 +9,12 @@ class LoginAPIView(APIView):
     authentication_classes = []
     permission_classes = []
     def post(self, request, *args, **kwargs):
-        serializers = serializer.LoginModelSerializer(data=request.data)
-        serializers.is_valid(raise_exception=True)  # 内部在全局钩子中完成token的签发
-        print(serializers.content)
+        serializer = serializers.LoginModelSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)  # 内部在全局钩子中完成token的签发
+        print(serializer.content)
         return APIResponse(results={
-            'username': serializers.content.get('user').username,
-            'token': serializers.content.get('token')
+            'username': serializer.content.get('user').username,
+            'token': serializer.content.get('token')
         })
 
 
@@ -24,12 +24,12 @@ class LoginMobileAPIView(APIView):
     permission_classes = []
 
     def post(self, request, *args, **kwargs):
-        serializers = serializer.LoginModelMobileSerializer(data=request.data)
-        serializers.is_valid(raise_exception=True)  # 内部在全局钩子中完成token的签发
-        print(serializers.content)
+        serializer = serializers.LoginModelMobileSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)  # 内部在全局钩子中完成token的签发
+        print(serializer.content)
         return APIResponse(results={
-            'username': serializers.content.get('user').username,
-            'token': serializers.content.get('token')
+            'username': serializer.content.get('user').username,
+            'token': serializer.content.get('token')
         })
 
 
@@ -65,4 +65,30 @@ class SMSAPIView(APIView):
         return APIResponse(0, msg='验证码发送成功')
 
 
+# 手机号验证 是否注册
+class MobileCheckAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        mobile = request.query_params.get('mobile')
+        if not mobile:
+            return APIResponse(1, msg='mobile必须提供', http_status=400)
+
+        if not re.match(r'^1[1-9][0-9]{9}$', mobile):
+            return APIResponse(1, msg='mobile格式有误', http_status=400)
+
+        try:
+            # 只要数据库中有，就已经注册过了
+            models.User.objects.get(mobile=mobile)
+            return APIResponse(2, msg='手机号已经注册了')
+
+        except:
+            return APIResponse(0, msg='手机号未注册')
+
+
+# 手机号验证码注册
+class RegisterMobileAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = serializers.RegisterMobileModelSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user_obj = serializer.save()
+        return APIResponse(results=serializers.RegisterMobileModelSerializer(user_obj).data)
 

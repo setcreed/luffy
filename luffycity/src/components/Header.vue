@@ -24,22 +24,31 @@
 
 
             <div class="right-part">
-                <span>登录</span>
+                <span @click="pull_login">登录</span>
                 <span class="line">|</span>
                 <span>注册</span>
             </div>
 
         </div>
+
+        <login v-if="is_login" />
+
     </div>
 
 </template>
 
 <script>
+    import Login from './Login'
     export default {
         name: "Header",
+        components: {Login},
+        comments: {
+            Login
+        },
         data() {
             return {
                 url_path: sessionStorage.url_path || '/',
+                i_login: false
             }
         },
         methods: {

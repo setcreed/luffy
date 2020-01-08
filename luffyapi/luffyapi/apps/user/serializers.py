@@ -2,6 +2,8 @@ from rest_framework import serializers
 from . import models
 from rest_framework_jwt.serializers import jwt_payload_handler, jwt_encode_handler
 import re
+from django.core.cache import cache
+from django.conf import settings
 
 
 class UserModelSerializer(serializers.ModelSerializer):
@@ -50,10 +52,6 @@ class LoginModelSerializer(serializers.ModelSerializer):
         return user
 
 
-from django.core.cache import cache
-from django.conf import settings
-
-
 class LoginModelMobileSerializer(serializers.ModelSerializer):
     mobile = serializers.CharField(max_length=11, min_length=11)
     code = serializers.CharField(max_length=6, min_length=6)
@@ -90,3 +88,53 @@ class LoginModelMobileSerializer(serializers.ModelSerializer):
             'token': token
         }
         return attrs
+
+
+class RegisterMobileModelSerializer(serializers.ModelSerializer):
+    code = serializers.CharField(write_only=True, max_length=6, min_length=6)
+
+    class Meta:
+        model = models.User
+        fields = ['username', 'mobile', 'password', 'code']
+        extra_kwargs = {
+            'username': {
+                'read_only': True
+            },
+            'password': {
+                'write_only': True
+            }
+        }
+
+    # 每一个反序列化字段都可以有一个局部钩子
+    def validate_mobile(self, value):
+        if not re.match(r'^1[1-9][0-9]{9}$', value):
+            raise serializers.ValidationError('手机号格式错误')
+        return value
+
+    def validate_code(self, value):
+        try:
+            int(value)
+            return value
+        except:
+            raise serializers.ValidationError('验证码错误')
+
+    # 全局校验
+    def validate(self, attrs):
+        mobile = attrs.get('mobile')
+        code = attrs.pop('code')
+        old_code = cache.get(settings.SMS_CACHE_FORMAT % mobile)
+        if code != old_code:
+            raise serializers.ValidationError({'code': '验证码有误'})
+
+        # 创建用户需要一些额外的信息
+        attrs['username'] = mobile
+        return attrs
+
+    # 需要重写create方法，默认入库，密码是明文
+    def create(self, validated_data):
+        return models.User.objects.create_user(**validated_data)
+
+
+
+
+
