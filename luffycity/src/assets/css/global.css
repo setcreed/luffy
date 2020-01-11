@@ -5,10 +5,6 @@ body, h1, h2, h3, h4, h5, h6, p, table, tr, td, ul, li, a, form, input, select, 
     font-size: 15px;
 }
 
-/*避免产生滚动条*/
-body {
-    overflow: hidden;
-}
 
 a {
     text-decoration: none;

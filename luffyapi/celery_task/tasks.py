@@ -7,7 +7,7 @@ from home.serializers import BannerModelSerializer
 
 @app.task
 def update_banner_cache():
-    banner_query = Banner.objects.filter(is_delete=False, is_show=True).all()[:settings.BANNER_COUNT]
+    banner_query = Banner.objects.filter(is_delete=False, is_show=True).order_by('-orders').all()[:settings.BANNER_COUNT]
     banner_data = BannerModelSerializer(banner_query, many=True).data
     for banner in banner_data:
         banner['image'] = '%s%s' % (settings.BASE_URL, banner.get('image'))
