@@ -6,113 +6,72 @@
             <div class="condition">
                 <ul class="cate-list">
                     <li class="title">课程分类:</li>
-                    <li class="this">全部</li>
-                    <li>Python</li>
-                    <li>Linux运维</li>
-                    <li>Python进阶</li>
-                    <li>开发工具</li>
-                    <li>Go语言</li>
-                    <li>机器学习</li>
-                    <li>技术生涯</li>
+                    <li :class="filter.course_category==0?'this':''" @click="filter.course_category=0">全部</li>
+                    <li :class="filter.course_category==category.id?'this':''" v-for="category in category_list"
+                        @click="filter.course_category=category.id" :key="category.name">{{category.name}}
+                    </li>
                 </ul>
 
                 <div class="ordering">
                     <ul>
                         <li class="title">筛&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选:</li>
-                        <li class="default this">默认</li>
-                        <li class="hot">人气</li>
-                        <li class="price">价格</li>
+                        <li class="default" :class="(filter.ordering=='id' || filter.ordering=='-id')?'this':''"
+                            @click="filter.ordering='-id'">默认
+                        </li>
+                        <li class="hot" :class="(filter.ordering=='students' || filter.ordering=='-students')?'this':''"
+                            @click="filter.ordering=(filter.ordering=='-students'?'students':'-students')">人气
+                        </li>
+                        <li class="price"
+                            :class="filter.ordering=='price'?'price_up this':(filter.ordering=='-price'?'price_down this':'')"
+                            @click="filter.ordering=(filter.ordering=='-price'?'price':'-price')">价格
+                        </li>
                     </ul>
-                    <p class="condition-result">共21个课程</p>
+                    <p class="condition-result">共{{course_total}}个课程</p>
                 </div>
 
             </div>
             <!-- 课程列表 -->
             <div class="course-list">
-                <div class="course-item">
+                <div class="course-item" v-for="course in course_list" :key="course.name">
                     <div class="course-image">
-                        <img src="@/assets/img/course-cover.jpeg" alt="">
+                        <img :src="course.course_img" alt="">
                     </div>
                     <div class="course-info">
-                        <h3>Python开发21天入门 <span><img src="@/assets/img/avatar1.svg" alt="">100人已加入学习</span></h3>
-                        <p class="teather-info">Alex 金角大王 老男孩Python教学总监 <span>共154课时/更新完成</span></p>
-                        <ul class="lesson-list">
-                            <li><span class="lesson-title">01 | 第1节：初识编码</span> <span class="free">免费</span></li>
-                            <li><span class="lesson-title">01 | 第1节：初识编码初识编码</span> <span class="free">免费</span></li>
-                            <li><span class="lesson-title">01 | 第1节：初识编码</span></li>
-                            <li><span class="lesson-title">01 | 第1节：初识编码初识编码</span></li>
+                        <h3>
+                            <router-link :to="'/free/detail/'+course.id">{{course.name}}</router-link>
+                            <span><img src="@/assets/img/avatar1.svg" alt="">{{course.students}}人已加入学习</span></h3>
+                        <p class="teather-info">
+                            {{course.teacher.name}} {{course.teacher.title}} {{course.teacher.signature}}
+                            <span v-if="course.sections>course.pub_sections">共{{course.sections}}课时/已更新{{course.pub_sections}}课时</span>
+                            <span v-else>共{{course.sections}}课时/更新完成</span>
+                        </p>
+                        <ul class="section-list">
+                            <li v-for="(section, key) in course.section_list" :key="section.name"><span
+                                    class="section-title">0{{key+1}}  |  {{section.name}}</span>
+                                <span class="free" v-if="section.free_trail">免费</span></li>
                         </ul>
                         <div class="pay-box">
-                            <span class="discount-type">限时免费</span>
-                            <span class="discount-price">￥0.00元</span>
-                            <span class="original-price">原价：9.00元</span>
+                            <div v-if="course.discount_type">
+                                <span class="discount-type">{{course.discount_type}}</span>
+                                <span class="discount-price">￥{{course.real_price}}元</span>
+                                <span class="original-price">原价：{{course.price}}元</span>
+                            </div>
+                            <span v-else class="discount-price">￥{{course.price}}元</span>
                             <span class="buy-now">立即购买</span>
                         </div>
                     </div>
                 </div>
-                <div class="course-item">
-                    <div class="course-image">
-                        <img src="@/assets/img/course-cover.jpeg" alt="">
-                    </div>
-                    <div class="course-info">
-                        <h3>Python开发21天入门 <span><img src="@/assets/img/avatar1.svg" alt="">100人已加入学习</span></h3>
-                        <p class="teather-info">Alex 金角大王 老男孩Python教学总监 <span>共154课时/更新完成</span></p>
-                        <ul class="lesson-list">
-                            <li><span class="lesson-title">01 | 第1节：初识编码</span> <span class="free">免费</span></li>
-                            <li><span class="lesson-title">01 | 第1节：初识编码初识编码</span> <span class="free">免费</span></li>
-                            <li><span class="lesson-title">01 | 第1节：初识编码</span></li>
-                            <li><span class="lesson-title">01 | 第1节：初识编码初识编码</span></li>
-                        </ul>
-                        <div class="pay-box">
-                            <span class="discount-type">限时免费</span>
-                            <span class="discount-price">￥0.00元</span>
-                            <span class="original-price">原价：9.00元</span>
-                            <span class="buy-now">立即购买</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="course-item">
-                    <div class="course-image">
-                        <img src="@/assets/img/course-cover.jpeg" alt="">
-                    </div>
-                    <div class="course-info">
-                        <h3>Python开发21天入门 <span><img src="@/assets/img/avatar1.svg" alt="">100人已加入学习</span></h3>
-                        <p class="teather-info">Alex 金角大王 老男孩Python教学总监 <span>共154课时/更新完成</span></p>
-                        <ul class="lesson-list">
-                            <li><span class="lesson-title">01 | 第1节：初识编码</span> <span class="free">免费</span></li>
-                            <li><span class="lesson-title">01 | 第1节：初识编码初识编码</span> <span class="free">免费</span></li>
-                            <li><span class="lesson-title">01 | 第1节：初识编码</span></li>
-                            <li><span class="lesson-title">01 | 第1节：初识编码初识编码</span></li>
-                        </ul>
-                        <div class="pay-box">
-                            <span class="discount-type">限时免费</span>
-                            <span class="discount-price">￥0.00元</span>
-                            <span class="original-price">原价：9.00元</span>
-                            <span class="buy-now">立即购买</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="course-item">
-                    <div class="course-image">
-                        <img src="@/assets/img/course-cover.jpeg" alt="">
-                    </div>
-                    <div class="course-info">
-                        <h3>Python开发21天入门 <span><img src="@/assets/img/avatar1.svg" alt="">100人已加入学习</span></h3>
-                        <p class="teather-info">Alex 金角大王 老男孩Python教学总监 <span>共154课时/更新完成</span></p>
-                        <ul class="lesson-list">
-                            <li><span class="lesson-title">01 | 第1节：初识编码</span> <span class="free">免费</span></li>
-                            <li><span class="lesson-title">01 | 第1节：初识编码初识编码</span> <span class="free">免费</span></li>
-                            <li><span class="lesson-title">01 | 第1节：初识编码</span></li>
-                            <li><span class="lesson-title">01 | 第1节：初识编码初识编码</span></li>
-                        </ul>
-                        <div class="pay-box">
-                            <span class="discount-type">限时免费</span>
-                            <span class="discount-price">￥0.00元</span>
-                            <span class="original-price">原价：9.00元</span>
-                            <span class="buy-now">立即购买</span>
-                        </div>
-                    </div>
-                </div>
+            </div>
+            <div class="course_pagination block">
+                <el-pagination
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                        :current-page.sync="filter.page"
+                        :page-sizes="[2, 3, 5, 10]"
+                        :page-size="filter.page_size"
+                        layout="sizes, prev, pager, next"
+                        :total="course_total">
+                </el-pagination>
             </div>
         </div>
         <!--<Footer></Footer>-->
@@ -127,12 +86,100 @@
         name: "Course",
         data() {
             return {
-                category: 0,
+                category_list: [], // 课程分类列表
+                course_list: [],   // 课程列表
+                course_total: 0,   // 当前课程的总数量
+                filter: {
+                    course_category: 0, // 当前用户选择的课程分类，刚进入页面默认为全部，值为0
+                    ordering: "-id",    // 数据的排序方式，默认值是-id，表示对于id进行降序排列
+                    page_size: 2,       // 单页数据量
+                    page: 1,
+                }
             }
+        },
+        created() {
+            this.get_category();
+            this.get_course();
         },
         components: {
             Header,
             // Footer,
+        },
+        watch: {
+            "filter.course_category": function () {
+                this.filter.page = 1;
+                this.get_course();
+            },
+            "filter.ordering": function () {
+                this.get_course();
+            },
+            "filter.page_size": function () {
+                this.get_course();
+            },
+            "filter.page": function () {
+                this.get_course();
+            }
+        },
+        methods: {
+
+            handleSizeChange(val) {
+                // 每页数据量发生变化时执行的方法
+                this.filter.page = 1;
+                this.filter.page_size = val;
+            },
+            handleCurrentChange(val) {
+                // 页码发生变化时执行的方法
+                this.filter.page = val;
+            },
+            get_category() {
+                // 获取课程分类信息
+                this.$axios.get(`${this.$settings.base_url}/course/categories/`).then(response => {
+                    this.category_list = response.data;
+                }).catch(() => {
+                    this.$message({
+                        message: "获取课程分类信息有误，请联系客服工作人员",
+                    })
+                })
+            },
+            get_course() {
+                // 排序
+                let filters = {
+                    ordering: this.filter.ordering, // 排序
+                };
+                // 判决是否进行分类课程的展示
+                if (this.filter.course_category > 0) {
+                    filters.course_category = this.filter.course_category;
+                }
+
+                // 设置单页数据量
+                if (this.filter.page_size > 0) {
+                    filters.page_size = this.filter.page_size;
+                } else {
+                    filters.page_size = 5;
+                }
+
+                // 设置当前页码
+                if (this.filter.page > 1) {
+                    filters.page = this.filter.page;
+                } else {
+                    filters.page = 1;
+                }
+
+
+                // 获取课程列表信息
+                this.$axios.get(`${this.$settings.base_url}/course/free/`, {
+                    params: filters
+                }).then(response => {
+                    // console.log(response.data);
+                    this.course_list = response.data.results;
+                    this.course_total = response.data.count;
+                    // console.log(this.course_list);
+                }).catch(() => {
+                    this.$message({
+                        message: "获取课程信息有误，请联系客服工作人员"
+                    })
+                })
+            }
         }
     }
 </script>
@@ -269,6 +316,14 @@
         bottom: 2px;
     }
 
+    .course .ordering .price_up::before {
+        border-bottom-color: #ffc210;
+    }
+
+    .course .ordering .price_down::after {
+        border-top-color: #ffc210;
+    }
+
     .course .course-item:hover {
         box-shadow: 4px 6px 16px rgba(0, 0, 0, .5);
     }
@@ -300,7 +355,8 @@
     }
 
     .course .course-item .course-image img {
-        width: 100%;
+        max-width: 100%;
+        max-height: 210px;
     }
 
     .course .course-item .course-info {
@@ -308,7 +364,7 @@
         width: 596px;
     }
 
-    .course-item .course-info h3 {
+    .course-item .course-info h3 a {
         font-size: 26px;
         color: #333;
         font-weight: normal;
@@ -341,13 +397,13 @@
         float: right;
     }
 
-    .course-item .lesson-list::after {
+    .course-item .section-list::after {
         content: "";
         display: block;
         clear: both;
     }
 
-    .course-item .lesson-list li {
+    .course-item .section-list li {
         float: left;
         width: 44%;
         font-size: 14px;
@@ -358,7 +414,7 @@
         margin-bottom: 15px;
     }
 
-    .course-item .lesson-list li .lesson-title {
+    .course-item .section-list li .section-title {
         /* 以下3句，文本内容过多，会自动隐藏，并显示省略符号 */
         text-overflow: ellipsis;
         overflow: hidden;
@@ -367,12 +423,12 @@
         max-width: 200px;
     }
 
-    .course-item .lesson-list li:hover {
+    .course-item .section-list li:hover {
         background-image: url("/src/assets/img/play-icon-yellow.svg");
         color: #ffc210;
     }
 
-    .course-item .lesson-list li .free {
+    .course-item .section-list li .free {
         width: 34px;
         height: 20px;
         color: #fd7b4d;
@@ -385,9 +441,19 @@
         white-space: nowrap;
     }
 
-    .course-item .lesson-list li:hover .free {
+    .course-item .section-list li:hover .free {
         color: #ffc210;
         border-color: #ffc210;
+    }
+
+    .course-item {
+        position: relative;
+    }
+
+    .course-item .pay-box {
+        position: absolute;
+        bottom: 20px;
+        width: 600px;
     }
 
     .course-item .pay-box::after {
@@ -435,11 +501,19 @@
         float: right;
         text-align: center;
         line-height: 38px;
+        position: absolute;
+        right: 0;
+        bottom: 5px;
     }
 
     .course-item .pay-box .buy-now:hover {
         color: #fff;
         background: #ffc210;
         border: 1px solid #ffc210;
+    }
+
+    .course .course_pagination {
+        margin-bottom: 60px;
+        text-align: center;
     }
 </style>

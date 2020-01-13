@@ -1,6 +1,5 @@
 from django.db import models
-
-
+'''
 class Course(models.Model):
     # 基础字段
     name = models.CharField(max_length=64)
@@ -21,20 +20,20 @@ class Course(models.Model):
 
 # 免费课
 class FreeCourse(Course):
-    image = models.ImageField(upload_to='course/free')
+    image = models.ImageField(upload_to='courses/free')
     attachment = models.FileField(upload_to='attachment')
 
 
 # 实战课
 class ActualCourse(Course):
-    image = models.ImageField(upload_to='course/actual')
+    image = models.ImageField(upload_to='courses/actual')
     price = models.DecimalField(max_digits=7, decimal_places=2)
     cost = models.DecimalField(max_digits=7, decimal_places=2)
 
 
 # 轻课
 class LightCourse(Course):
-    image = models.ImageField(upload_to='course/light')
+    image = models.ImageField(upload_to='courses/light')
     price = models.DecimalField(max_digits=7, decimal_places=2)
     cost = models.DecimalField(max_digits=7, decimal_places=2)
     period = models.IntegerField(verbose_name='学习建议周期(month)', default=0)
@@ -44,6 +43,7 @@ class LightCourse(Course):
 # 老师表：在课程表建立多对一外键
 # 章节表：在章节表建立多对一外键关联课程
 # 课时表：在课时表建立多对一外键关联章节
+'''
 
 
 from utils.model import BaseModel
@@ -80,7 +80,7 @@ class Course(BaseModel):
         (2, '预上线'),
     )
     name = models.CharField(max_length=128, verbose_name="课程名称")
-    course_img = models.ImageField(upload_to="course", max_length=255, verbose_name="封面图片", blank=True, null=True)
+    course_img = models.ImageField(upload_to="courses", max_length=255, verbose_name="封面图片", blank=True, null=True)
     course_type = models.SmallIntegerField(choices=course_type, default=0, verbose_name="付费类型")
     # 使用这个字段的原因
     brief = models.TextField(max_length=2048, verbose_name="详情介绍", null=True, blank=True)

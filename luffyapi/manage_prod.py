@@ -1,3 +1,4 @@
+# 线上脚本文件
 #!/usr/bin/env python
 import os
 import sys
