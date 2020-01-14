@@ -1,11 +1,11 @@
 from django.db import models
-'''
+
+"""
 class Course(models.Model):
-    # 基础字段
     name = models.CharField(max_length=64)
     title = models.CharField(max_length=64)
     level = models.IntegerField(choices=((0, '入门'), (1, '进阶')), default=0)
-    detail = models.TextField()
+    detail = models.TextField()  # 可以关联详情表
     type = models.IntegerField(choices=((0, 'Python'), (1, 'Linux')), default=0)
     is_show = models.BooleanField(default=False)
 
@@ -17,42 +17,42 @@ class Course(models.Model):
     class Meta:
         abstract = True
 
-
 # 免费课
 class FreeCourse(Course):
-    image = models.ImageField(upload_to='courses/free')
+    image = models.ImageField(upload_to='course/free')
     attachment = models.FileField(upload_to='attachment')
-
 
 # 实战课
 class ActualCourse(Course):
-    image = models.ImageField(upload_to='courses/actual')
+    image = models.ImageField(upload_to='course/actual')
     price = models.DecimalField(max_digits=7, decimal_places=2)
     cost = models.DecimalField(max_digits=7, decimal_places=2)
-
 
 # 轻课
 class LightCourse(Course):
-    image = models.ImageField(upload_to='courses/light')
+    image = models.ImageField(upload_to='course/light')
     price = models.DecimalField(max_digits=7, decimal_places=2)
     cost = models.DecimalField(max_digits=7, decimal_places=2)
     period = models.IntegerField(verbose_name='学习建议周期(month)', default=0)
-
 
 # 评论表：分三个表、(id，ctx，date，user_id，free_course_id, comment_id)
 # 老师表：在课程表建立多对一外键
 # 章节表：在章节表建立多对一外键关联课程
 # 课时表：在课时表建立多对一外键关联章节
-'''
+"""
 
 
+"""
+CourseCategory：
+Course：CourseCategory一对多；Teacher一对多
+Teacher：
+CourseChapter：Course一对多
+CourseSection：CourseChapter一对多
+"""
 from utils.model import BaseModel
-
-
 class CourseCategory(BaseModel):
     """分类"""
     name = models.CharField(max_length=64, unique=True, verbose_name="分类名称")
-
     class Meta:
         db_table = "luffy_course_category"
         verbose_name = "分类"
@@ -60,7 +60,6 @@ class CourseCategory(BaseModel):
 
     def __str__(self):
         return "%s" % self.name
-
 
 class Course(BaseModel):
     """课程"""
@@ -90,17 +89,17 @@ class Course(BaseModel):
     attachment_path = models.FileField(upload_to="attachment", max_length=128, verbose_name="课件路径", blank=True,
                                        null=True)
     status = models.SmallIntegerField(choices=status_choices, default=0, verbose_name="课程状态")
-    course_category = models.ForeignKey("CourseCategory", on_delete=models.SET_NULL, db_constraint=False, null=True,
-                                        blank=True,
-                                        verbose_name="课程分类")
+    pub_sections = models.IntegerField(verbose_name="课时更新数量", default=0)
+    price = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="课程原价", default=0)
+
     students = models.IntegerField(verbose_name="学习人数", default=0)
     sections = models.IntegerField(verbose_name="总课时数量", default=0)
 
-    pub_sections = models.IntegerField(verbose_name="课时更新数量", default=0)
-    price = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="课程原价", default=0)
+    course_category = models.ForeignKey(CourseCategory, on_delete=models.SET_NULL, db_constraint=False, null=True,
+                                        blank=True,
+                                        verbose_name="课程分类")
     teacher = models.ForeignKey("Teacher", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name="授课老师")
 
-    # 难度等级
     @property
     def level_name(self):
         return self.get_level_display()
@@ -109,17 +108,19 @@ class Course(BaseModel):
     @property
     def section_list(self):
         section_list_temp = []
+
         for chapter in self.coursechapters.all():
             for section in chapter.coursesections.all():
                 section_list_temp.append({
                     'chapter': chapter.chapter,
                     'orders': section.orders,
                     'name': section.name
-
                 })
                 if len(section_list_temp) >= 4:
                     return section_list_temp
+        # 不足4条
         return section_list_temp
+
 
 
     class Meta:
@@ -129,7 +130,6 @@ class Course(BaseModel):
 
     def __str__(self):
         return "%s" % self.name
-
 
 class Teacher(BaseModel):
     """导师"""
@@ -157,7 +157,6 @@ class Teacher(BaseModel):
     def __str__(self):
         return "%s" % self.name
 
-
 class CourseChapter(BaseModel):
     """章节"""
     course = models.ForeignKey("Course", related_name='coursechapters', on_delete=models.CASCADE, verbose_name="课程名称")
@@ -172,8 +171,10 @@ class CourseChapter(BaseModel):
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return "%s:(第%s章)%s" % (self.course, self.chapter, self.name)
-
+        try:
+            return "%s:(第%s章)%s" % (self.course, self.chapter, self.name)
+        except:
+            return super().__str__()
 
 class CourseSection(BaseModel):
     """课时"""
@@ -185,7 +186,6 @@ class CourseSection(BaseModel):
     chapter = models.ForeignKey("CourseChapter", related_name='coursesections', on_delete=models.CASCADE,
                                 verbose_name="课程章节")
     name = models.CharField(max_length=128, verbose_name="课时标题")
-    orders = models.PositiveSmallIntegerField(verbose_name="课时排序")
     section_type = models.SmallIntegerField(default=2, choices=section_type_choices, verbose_name="课时种类")
     section_link = models.CharField(max_length=255, blank=True, null=True, verbose_name="课时链接",
                                     help_text="若是video，填vid,若是文档，填link")
@@ -203,3 +203,5 @@ class CourseSection(BaseModel):
             return "%s-%s" % (self.chapter, self.name)
         except:
             return super().__str__()
+
+

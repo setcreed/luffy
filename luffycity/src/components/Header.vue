@@ -36,6 +36,16 @@
                 </div>
             </div>
 
+            <form class="search">
+                <div class="tips" v-if="is_search_tip">
+                    <span @click="search_action('Python')">Python</span>
+                    <span @click="search_action('Linux')">Linux</span>
+                </div>
+                <input type="text" :placeholder="search_placeholder" @focus="on_search" @blur="off_search"
+                       v-model="search_word">
+                <button type="button" class="glyphicon glyphicon-search" @click="search_action(search_word)"></button>
+            </form>
+
         </div>
 
 
@@ -63,10 +73,34 @@
                 is_register: false,
                 token: $cookies.get('token') || '',
                 username: $cookies.get('username') || '',
+                is_search_tip: true,
+                search_placeholder: '',
+                search_word: ''
             }
         },
         methods: {
+
+            search_action(search_word) {
+                if (!search_word) {
+                    this.$message('请输入要搜索的内容');
+                    return
+                }
+                if (search_word !== this.$route.query.word) {
+                    this.$router.push(`/course/search?word=${search_word}`);
+                }
+                this.search_word = '';
+            },
+            on_search() {
+                this.search_placeholder = '请输入想搜索的课程';
+                this.is_search_tip = false;
+            },
+            off_search() {
+                this.search_placeholder = '';
+                this.is_search_tip = true;
+            },
+
             goPage(url_path) {
+
                 // 已经是当前路由就没有必要重新跳转
                 if (this.url_path !== url_path) {
                     this.$router.push(url_path);
@@ -202,6 +236,7 @@
         float: right;
         position: relative;
         margin-top: 22px;
+        margin-right: 10px;
     }
 
     .search input, .search button {
@@ -238,5 +273,8 @@
         cursor: pointer;
         color: #666;
         font-size: 14px;
+    }
+    .search .tips span:hover {
+        color: orange;
     }
 </style>

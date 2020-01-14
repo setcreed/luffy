@@ -23,7 +23,6 @@ class LoginAPIView(APIView):
             'token': serializer.content.get('token')
         })
 
-
 # 手机验证码登录
 class LoginMobileAPIView(APIView):
     authentication_classes = ()
@@ -37,13 +36,11 @@ class LoginMobileAPIView(APIView):
             'token': serializer.content.get('token')
         })
 
-
 # 发送验证码
 class SMSAPIView(APIView):
     authentication_classes = ()
     permission_classes = ()
     throttle_classes = [throttles.SMSRateThrottle]
-
     def post(self, request, *args, **kwargs):
         # 1）处理手机号
         mobile = request.data.get('mobile', None)
@@ -84,7 +81,6 @@ class MobileCheckAPIView(APIView):
         except:
             return APIResponse(0, msg='手机号未注册')
 
-
 # 手机号验证码注册
 class RegisterMobileAPIView(APIView):
     def post(self, request, *args, **kwargs):
@@ -92,3 +88,19 @@ class RegisterMobileAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         user_obj = serializer.save()
         return APIResponse(results=serializers.RegisterMobileModelSerializer(user_obj).data)
+
+
+# 伪代码：celery异步或延迟任务
+from celery_task.tasks import send_email
+class EMailAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        user = request.data.get('user')
+        content = request.data.get('content')
+        eta = request.data.get('eta')
+        if not eta:
+            # 添加立即的异步任务
+            send_email.delay(user, content)
+        else:
+            # 延迟任务
+            send_email.apply_aysnc(args=(user, content), eta=eta)
+        return APIResponse()

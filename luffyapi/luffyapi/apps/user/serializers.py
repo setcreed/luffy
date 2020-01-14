@@ -1,17 +1,15 @@
 import re
 from rest_framework import serializers
 from rest_framework_jwt.serializers import jwt_payload_handler, jwt_encode_handler
-from django.core.cache import cache
-from django.conf import settings
-from . import models
 
+
+from . import models
 
 class LoginModelSerializer(serializers.ModelSerializer):
     # post请求，序列化默认当做create动作进行校验，需要校验数据库，create动作username会抛用户已存在异常
     # 抛用户已存在异常是多余的，所以自定义系统校验规则即可
     username = serializers.CharField(min_length=3, max_length=16)
     password = serializers.CharField(min_length=3, max_length=16)
-
     class Meta:
         model = models.User
         fields = ('username', 'password')
@@ -48,11 +46,11 @@ class LoginModelSerializer(serializers.ModelSerializer):
         return user
 
 
-
+from django.core.cache import cache
+from django.conf import settings
 class LoginMobileModelSerializer(serializers.ModelSerializer):
     mobile = serializers.CharField(min_length=11, max_length=11)
     code = serializers.CharField(min_length=6, max_length=6)
-
     class Meta:
         model = models.User
         fields = ('mobile', 'code')
@@ -75,7 +73,7 @@ class LoginMobileModelSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'code': '验证码有误'})
 
         # 验证码校验通过，验证码失效（验证码一次性使用）
-        # cache.set(settings.SMS_CACHE_FORMAT % mobile, None, 0)
+        cache.set(settings.SMS_CACHE_FORMAT % mobile, None, 0)
 
         try:
             user = models.User.objects.get(mobile=mobile, is_active=True)
@@ -91,9 +89,9 @@ class LoginMobileModelSerializer(serializers.ModelSerializer):
         return attrs
 
 
+
 class RegisterMobileModelSerializer(serializers.ModelSerializer):
     code = serializers.CharField(write_only=True, min_length=6, max_length=6)
-
     class Meta:
         model = models.User
         fields = ('username', 'mobile', 'password', 'code')
@@ -138,3 +136,4 @@ class RegisterMobileModelSerializer(serializers.ModelSerializer):
     # create方法是是需要重写：默认入库，密码是明文
     def create(self, validated_data):
         return models.User.objects.create_user(**validated_data)
+

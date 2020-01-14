@@ -12,28 +12,32 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# BASE_DIR代表 小luffy
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# 环境变量配置管理
+# 重点：环境变量管理
 import sys
 
+# BASE_DIR
 sys.path.append(BASE_DIR)
+# apps
 sys.path.append(os.path.join(BASE_DIR, 'apps'))
+
+# 加载自定义常量配置文件名称空间
+from .const import *
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'kg0e(9mv*=)eeg9_ymjlqo0^)buhsxo#567z&m*&ff_c)^1ut&'
+SECRET_KEY = '9hrt*k!cfyy#d6t0+ugint3ppxql22%g3qukt_9!w3h9lo+-ir'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
-# Application definition
-
+# 注册app
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,19 +46,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'rest_framework',
-    'user',
-    'home',
-    'courses',
-
-    'corsheaders',
-
     # xamin主体模块
     'xadmin',
     # 渲染表格模块
     'crispy_forms',
     # 为模型通过版本控制，可以回滚数据
     'reversion',
+    'rest_framework',
+    'corsheaders',
+
+    'user',
+    'home',
+    'course',
 ]
 
 MIDDLEWARE = [
@@ -65,10 +68,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
-
 # 允许跨域源
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -93,9 +94,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'luffyapi.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
+# mysql数据库配置
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -103,19 +102,15 @@ DATABASES = {
         'USER': 'luffy',
         'PASSWORD': 'Luffy123?',
         'HOST': 'localhost',
-        'PORT': 3306,
+        'PORT': 3306
     }
 }
-
 import pymysql
 
 pymysql.install_as_MySQLdb()
 
-# 自定义user表
+# 自定义User表
 AUTH_USER_MODEL = 'user.User'
-
-# 加载自定义常量配置文件名称空间
-from .const import *
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -135,20 +130,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
-# https://docs.djangoproject.com/en/2.0/topics/i18n/
-
+# 国际化
 LANGUAGE_CODE = 'zh-hans'
-
 TIME_ZONE = 'Asia/Shanghai'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = False
-
-BASE_URL = 'http://127.0.0.1:8000'
 
 # 静态文件配置
 STATIC_URL = '/static/'
@@ -157,8 +144,7 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# django的logging日志
-# 真实项目上线后，日志文件打印级别不能过低，因为一次日志记录就是一次文件io操作
+# django的logging配置
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -208,11 +194,11 @@ LOGGING = {
     }
 }
 
-# drf框架配置
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+# drf框架的配置
 REST_FRAMEWORK = {
     # 异常模块
     'EXCEPTION_HANDLER': 'utils.exception.exception_handler',
-
     # 三大认证模块
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
@@ -227,7 +213,6 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'sms': '1/min'
     },
-
 }
 
 # drf-jwt配置
@@ -239,8 +224,7 @@ JWT_AUTH = {
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 }
 
-
-# django缓存配置
+# 配置django缓存
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -253,3 +237,4 @@ CACHES = {
         }
     }
 }
+

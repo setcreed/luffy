@@ -1,17 +1,16 @@
 from rest_framework.routers import Route, DynamicRoute, SimpleRouter as DRFSimpleRouter
 
-
 class SimpleRouter(DRFSimpleRouter):
     routes = [
-        # List route.
+        # List route.  /资源s/
         Route(
             url=r'^{prefix}{trailing_slash}$',
             mapping={
-                'get': 'list',
-                'post': 'create',
-                'put': 'multiply_update',
-                'patch': 'multiply_partial_update',
-                'delete': 'multiply_destroy'
+                'get': 'list',  # 群查
+                'post': 'create',  # 单增、群增
+                'put': 'multiple_update',  # 群整改
+                'patch': 'multiple_partial_update',  # 群局改
+                'delete': 'multiple_destroy',  # 群删
             },
             name='{basename}-list',
             detail=False,
@@ -25,14 +24,14 @@ class SimpleRouter(DRFSimpleRouter):
             detail=False,
             initkwargs={}
         ),
-        # Detail route.
+        # Detail route.  /资源s/(pk)/
         Route(
             url=r'^{prefix}/{lookup}{trailing_slash}$',
             mapping={
-                'get': 'retrieve',
-                'put': 'update',
-                'patch': 'partial_update',
-                'delete': 'destroy'
+                'get': 'retrieve',  # 单查
+                'put': 'update',  # 单整改
+                'patch': 'partial_update',  # 单局改
+                'delete': 'destroy'  # 单删
             },
             name='{basename}-detail',
             detail=True,
@@ -48,21 +47,20 @@ class SimpleRouter(DRFSimpleRouter):
         ),
     ]
 
-
+# 对外提供十大接口的router对象
 router = SimpleRouter()
-
+# eg: router.register('users', UserModelViewSet, basename='user')
 """
 /users/
-'get': 'list',    # 群查
-'post': 'create',   # 单增、群增
-'put': 'multiply_update',   # 群整改
-'patch': 'multiply_partial_update',   # 群局部改
-'delete': 'multiply_destroy'    # 群删
-
+'get': 'list',  # 群查
+'post': 'create',  # 单增、群增
+'put': 'multiple_update',  # 群整改
+'patch': 'multiple_partial_update',  # 群局改
+'delete': 'multiple_destroy',  # 群删
 
 /users/(pk)/
-'get': 'retrieve',
-'put': 'update',
-'patch': 'partial_update',
-'delete': 'destroy'
+'get': 'retrieve',  # 单查
+'put': 'update',  # 单整改
+'patch': 'partial_update',  # 单局改
+'delete': 'destroy'  # 单删
 """
