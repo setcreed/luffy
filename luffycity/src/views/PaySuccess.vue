@@ -24,7 +24,19 @@
 <script>
     // import Header from "@/components/Header"
     // import Footer from "@/components/Footer"
-
+    // `
+    // ?charset=utf-8&
+    // out_trade_no=050195410997&
+    // method=alipay.trade.page.pay.return&
+    // total_amount=39.00&
+    // sign=HSF70z5AkKlu7lzOh%2Bnw8djgFdZe4rS%2BQf6xkPM3cwrVrV0bNl%2Fc8S%2FBarWFzzARlCJ71et37v7WQ%2F7NcP8o2zrJXIio83y7iI9XpNLpjPPm8hLjuG%2FZkMy1Im9aB4CISiGWXK9joo4OnUee6yApRPzw3ZQPBCTj%2Fe1tX8EyZudLCVcWKB6kBl4%2FFmHvPkXbkXznS7jwPpENfCH%2FJ%2B%2BvuTnr1QHyUXygOkkAqVcHfutSq%2Bwa0rvtZyUonymCRpUvQgKjwMzf6ysVIJTwvS6j4ni2rhvtGGkST%2BBtOGulOZNEvzMgbPWt5NMH8N62I3KUzzask0%2BAwofVCNSMyhACcA%3D%3D&
+    // trade_no=2020011522001464021000193413&
+    // auth_app_id=2016093000631831&version=1.0
+    // &app_id=2016093000631831&
+    // sign_type=RSA2&
+    // seller_id=2088102177958114&
+    // timestamp=2020-01-15%2009%3A04%3A50
+    // `;
     export default {
         name: "Success",
         data() {
@@ -36,12 +48,12 @@
             // url后拼接的参数
             console.log(location.search);
 
-            localStorage.this_nav = '/';
-            if (!location.search.length) return;
+            // url后拼接的参数为空，不用解析
+            if (location.search.length === 0) return false;
 
             // 解析支付宝回调的url参数
-            let params = location.search.substring(1);
-            let items = params.length ? params.split('&') : [];
+            let params = location.search.substring(1);  // 从索引1开始截取到最后
+            let items = params.length ? params.split('&') : [];  // ['key1=value1', ..., 'keyn=valuen']
             //逐个将每一项添加到args对象中
             for (let i = 0; i < items.length; i++) {
                 let k_v = items[i].split('=');
@@ -51,17 +63,15 @@
                 // let k = k_v[0];
                 // let v = k_v[1];
                 this.result[k] = v;
-                // this.result[k_v[0]] = k_v[1];
             }
             console.log(this.result);
 
+
+
             // 把地址栏上面的支付结果，转发给后端
             this.$axios({
-                url: this.$settings.base_url + '/order/success' + location.search,
-                method: 'patch',
-                headers: {
-                    Authorization: token
-                }
+                url: this.$settings.base_url + '/order/pay/success/' + location.search,
+                method: 'get'
             }).then(response => {
                 console.log(response.data);
             }).catch(() => {
