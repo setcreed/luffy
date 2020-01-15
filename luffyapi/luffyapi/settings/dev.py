@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'user',
     'home',
     'course',
+    'order',
 ]
 
 MIDDLEWARE = [
@@ -144,6 +145,17 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+
+# 后台http根路径
+BASE_URL = 'http://127.0.0.1:8000'
+# 前台http根路径
+LUFFY_URL = 'http://127.0.0.1:8080'
+# 订单支付成功的后台异步回调接口
+NOTIFY_URL = BASE_URL + '/order/pay/success/'
+# 订单支付成功的前台同步回调接口
+RETURN_URL = LUFFY_URL + '/pay/success'
+
+
 # django的logging配置
 LOGGING = {
     'version': 1,
@@ -195,6 +207,16 @@ LOGGING = {
 }
 
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+
+# drf-jwt配置
+import datetime
+
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+    'JWT_ALLOW_REFRESH': False,
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
+}
+
 # drf框架的配置
 REST_FRAMEWORK = {
     # 异常模块
@@ -215,15 +237,6 @@ REST_FRAMEWORK = {
     },
 }
 
-# drf-jwt配置
-import datetime
-
-JWT_AUTH = {
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
-    'JWT_ALLOW_REFRESH': False,
-    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
-}
-
 # 配置django缓存
 CACHES = {
     "default": {
@@ -237,4 +250,3 @@ CACHES = {
         }
     }
 }
-

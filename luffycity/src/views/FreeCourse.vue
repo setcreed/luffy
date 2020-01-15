@@ -57,7 +57,7 @@
                                 <span class="original-price">原价：{{course.price}}元</span>
                             </div>
                             <span v-else class="discount-price">￥{{course.price}}元</span>
-                            <span class="buy-now">立即购买</span>
+                            <span class="buy-now" @click="buy_action(course)">立即购买</span>
                         </div>
                     </div>
                 </div>
@@ -121,6 +121,37 @@
             }
         },
         methods: {
+            buy_action(course) {
+                // 登录判断
+                let token = this.$cookies.get('token');
+                if (!token) {
+                    this.$message({
+                        type: 'warning',
+                        message: '请先登录!'
+                    });
+                    return false
+                }
+                // 后台请求
+                this.$axios({
+                    url: this.$settings.base_url + '/order/pay/',
+                    method: 'post',
+                    data: {
+                        subject: course.name,
+                        total_amount: course.price,
+                        pay_type: 1,
+                        courses: [course.id]
+                    },
+                    headers: {
+                        authorization: `jwt ${token}`,
+                    }
+                }).then(response => {
+                    // console.log(response.data)
+                    let pay_url = response.data;
+                    window.open(pay_url, '_self')
+                }).catch(error => {
+                    console.log(error.response.data)
+                })
+            },
 
             handleSizeChange(val) {
                 // 每页数据量发生变化时执行的方法

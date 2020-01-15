@@ -5,7 +5,7 @@ import store from './store'
 
 Vue.config.productionTip = false;
 
-// 全局css
+// 全局css配置
 require('@/assets/css/global.css');
 
 // 全局js配置
@@ -19,18 +19,18 @@ Vue.prototype.$axios = axios;
 // cookies
 import cookies from 'vue-cookies'
 Vue.prototype.$cookies = cookies;
-/*
-this.$cookies.set(key, value, exp)
+/* 在组件逻辑中使用
+this.$cookies.set(key, value, exp)  // exp: '1s' | '1h' | '1d'
 this.$cookies.get(key)
 this.$cookies.remove(key)
-*/
+ */
 
 // element-ui
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 
-// bootstrap + jquery
+// bs+jq
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
@@ -39,7 +39,6 @@ require('video.js/dist/video-js.css');
 require('vue-video-player/src/custom-theme.css');
 import VideoPlayer from 'vue-video-player'
 Vue.use(VideoPlayer);
-
 
 new Vue({
     router,

@@ -4,6 +4,7 @@ import Home from '../views/Home.vue'
 import FreeCourse from '../views/FreeCourse'
 import SearchCourse from '../views/SearchCourse'
 import CourseDetail from '../views/CourseDetail'
+import PaySuccess from '../views/PaySuccess'
 
 Vue.use(VueRouter);
 
@@ -27,6 +28,11 @@ const routes = [
         path: '/free/detail/:pk',
         name: 'free-detail',
         component: CourseDetail
+    },
+    {
+        path: '/pay/success',
+        name: 'pay-success',
+        component: PaySuccess
     },
 ];
 

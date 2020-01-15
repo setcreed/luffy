@@ -20,6 +20,7 @@ urlpatterns = [
     path('user/', include('user.urls')),
     path('home/', include('home.urls')),
     path('course/', include('course.urls')),
+    path('order/', include('order.urls')),
 
     # 媒体文件
     re_path('^media/(?P<path>.*)', serve, {'document_root': settings.MEDIA_ROOT})
