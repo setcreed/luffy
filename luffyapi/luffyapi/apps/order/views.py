@@ -45,7 +45,7 @@ class OrderSuccessAPIView(APIView):
         trade_status = data.get("trade_status")
         # 异步回调，签名sign校验通过，以及订单状态成功或完成，才能确定支付宝支付成功了
         if result and trade_status in ("TRADE_SUCCESS", "TRADE_FINISHED"):
-            print(1111111111111)
+            # print(1111111111111)
             models.Order.objects.filter(out_trade_no=out_trade_no).update(order_status=1)
             logger.critical('订单：%s - %s - 支付成功' % (out_trade_no, trade_status))
             return Response('success')

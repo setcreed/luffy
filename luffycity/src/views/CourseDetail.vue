@@ -115,6 +115,7 @@
                         type: "video/mp4",
                         // src: "http://img.ksbbs.com/asset/Mon_1703/05cacb4e02f9d9e.mp4" //你的视频地址（必填）
                         src: "http://q42nk18z5.bkt.clouddn.com/1.%E5%BA%8F%E5%88%97%2004_3(Av63051368,P1).mp4"
+                        // src: "http://94me.ccaeo.com/?/1.01%20-%20%E8%AF%BE%E7%A8%8B%E7%BB%BC%E8%BF%B0%28Av77021033%2CP1%29.mp4"
                         // src: "https://www.qtt08205.workers.dev/%E6%AD%A3%E5%B8%B8%E7%BD%91%E7%9B%98%E5%BD%92%E6%A1%A3/%E5%B0%8F%E4%B8%91.Joker.2019.1080P.%E4%B8%AD%E9%9F%A9%E5%90%8C%E6%AD%A5%E5%AD%97%E5%B9%95.%E7%89%A9%E4%B8%8E%E6%B0%91%E8%83%9E.[%E7%BE%8E%E5%89%A7%E5%BA%93%E5%AE%98%E7%BD%91%20www.meijushu.com]/小丑.Joker.2019.1080P.中韩同步字幕.物与民胞.[美剧库官网 www.meijushu.com].mp4"
                     }],
                 }
